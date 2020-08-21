@@ -1058,6 +1058,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "mashed-potato"
+version = "0.1.0"
+dependencies = [
+ "actix-rt",
+ "actix-web",
+ "chrono",
+ "failure",
+ "futures",
+ "reqwest",
+ "scraper",
+ "serde",
+]
+
+[[package]]
 name = "match_cfg"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1074,20 +1088,6 @@ name = "memchr"
 version = "2.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3728d817d99e5ac407411fa471ff9800a778d88a24685968b36824eaf4bee400"
-
-[[package]]
-name = "menu"
-version = "0.1.0"
-dependencies = [
- "actix-rt",
- "actix-web",
- "chrono",
- "failure",
- "futures",
- "reqwest",
- "scraper",
- "serde",
-]
 
 [[package]]
 name = "mime"
