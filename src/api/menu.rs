@@ -4,10 +4,51 @@ use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct Dish {
+    pub title: String,
+    pub id: String,
+}
+
+impl Dish {
+    fn extract_title(element: &scraper::ElementRef) -> Option<String> {
+        let selector = Selector::parse(".app-daymenu-name").unwrap();
+
+        element
+            .select(&selector)
+            .next()
+            .map(|element| element.inner_html())
+    }
+
+    fn extract_id(element: &scraper::ElementRef) -> Option<String> {
+        let selector = Selector::parse(".icon-left").unwrap();
+
+        element
+            .select(&selector)
+            .next()
+            .map(|element| {
+                element
+                    .value()
+                    .attr("js-meal-id")
+                    .map(|attr| attr.to_string())
+            })
+            .flatten()
+    }
+
+    pub fn from_element(element: scraper::ElementRef) -> Option<Self> {
+        let id = Self::extract_id(&element);
+        let title = Self::extract_title(&element);
+
+        match (id, title) {
+            (Some(id), Some(title)) => Some(Self { id, title }),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Menu {
     pub date: DateTime<Local>,
-    pub dishes: Vec<String>,
-    pub id: String,
+    pub dishes: Vec<Dish>,
 }
 
 impl Menu {
@@ -49,30 +90,21 @@ impl Menu {
         intermediate
     }
 
-    fn extract_dishes(element: &scraper::ElementRef) -> Vec<String> {
-        let selector =
-            Selector::parse(".list-group > .list-group-item > div.app-daymenu-name").unwrap();
+    pub fn from_element(element: scraper::ElementRef) -> Option<Self> {
+        let dish_selector = Selector::parse(".list-group > .list-group-item").unwrap();
 
-        let dishes: Vec<String> = element
-            .select(&selector)
-            .map(|element| element.inner_html().trim().to_string())
+        let dishes: Vec<Dish> = element
+            .select(&dish_selector)
+            .filter_map(Dish::from_element)
             .collect();
 
-        dishes
-    }
-
-    pub fn from_element(element: scraper::ElementRef) -> Option<Self> {
-        let id_selector = Selector::parse(".list-group > .list-group-item > .icon-left").unwrap();
-
-        let id_element = match element.select(&id_selector).next() {
-            Some(id_element) => id_element,
-            None => return None,
-        };
+        if dishes.is_empty() {
+            return None;
+        }
 
         Some(Self {
-            dishes: Self::extract_dishes(&element),
+            dishes,
             date: Self::extract_date(&element),
-            id: id_element.value().attr("js-meal-id").unwrap().to_string(),
         })
     }
 
