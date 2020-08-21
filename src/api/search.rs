@@ -17,7 +17,7 @@ impl SearchResult {
     }
 }
 
-pub async fn search(query: String) -> APIResult<Vec<SearchResult>> {
+pub async fn search(query: &str) -> APIResult<Vec<SearchResult>> {
     let mut body = HashMap::new();
     body.insert("query", query);
 
