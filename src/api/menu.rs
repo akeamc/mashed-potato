@@ -1,15 +1,14 @@
 use super::APIResult;
 use chrono::prelude::*;
 use scraper::{Html, Selector};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Menu {
     pub date: DateTime<Local>,
     pub dishes: Vec<String>,
     pub id: String,
 }
-
-pub type Menus = Vec<Menu>;
 
 fn parse_date(date_string: String) -> DateTime<Local> {
     let mut segments = date_string.split_whitespace();
@@ -70,7 +69,7 @@ fn parse_element(element: scraper::ElementRef) -> Option<Menu> {
     })
 }
 
-pub async fn scrape_menus(url: String) -> APIResult<Menus> {
+pub async fn scrape_menus(url: String) -> APIResult<Vec<Menu>> {
     let response = reqwest::get(&url).await?;
     let html = response.text().await?;
 
