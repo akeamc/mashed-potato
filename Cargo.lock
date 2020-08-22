@@ -433,6 +433,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "chrono-tz"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "65d96be7c3e993c9ee4356442db24ba364c924b6b8331866be6b6952bfe74b9d"
+dependencies = [
+ "chrono",
+ "parse-zoneinfo",
+ "serde",
+]
+
+[[package]]
 name = "cloudabi"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1059,11 +1070,12 @@ dependencies = [
 
 [[package]]
 name = "mashed-potato"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "actix-rt",
  "actix-web",
  "chrono",
+ "chrono-tz",
  "failure",
  "futures",
  "reqwest",
@@ -1295,6 +1307,15 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "parse-zoneinfo"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c705f256449c60da65e11ff6626e0c16a0a0b96aaa348de61376b249bc340f41"
+dependencies = [
+ "regex",
 ]
 
 [[package]]

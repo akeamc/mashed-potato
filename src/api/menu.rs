@@ -47,47 +47,46 @@ impl Dish {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Menu {
-    pub date: DateTime<Local>,
+    pub date: DateTime<Utc>,
     pub dishes: Vec<Dish>,
 }
 
 impl Menu {
-    fn extract_date(element: &scraper::ElementRef) -> DateTime<Local> {
+    fn extract_date(element: &scraper::ElementRef) -> Option<DateTime<Utc>> {
         let selector = Selector::parse(".panel-heading > .pull-right").unwrap();
         let date_str = element.select(&selector).next().unwrap().inner_html();
 
         let mut segments = date_str.split_whitespace();
 
-        let day = segments.next().unwrap().parse::<u32>().unwrap();
+        let day = segments
+            .next()
+            .and_then(|day_str| day_str.parse::<u32>().ok());
 
-        let month_str = segments.next().unwrap();
+        let month = segments.next().and_then(|month_str| match month_str {
+            "jan" => Some(1),
+            "feb" => Some(2),
+            "mar" => Some(3),
+            "apr" => Some(4),
+            "maj" => Some(5),
+            "jun" => Some(6),
+            "jul" => Some(7),
+            "aug" => Some(8),
+            "sep" => Some(9),
+            "okt" => Some(10),
+            "nov" => Some(11),
+            "dec" => Some(12),
+            _ => None,
+        });
 
-        let month = match month_str {
-            "jan" => 1,
-            "feb" => 2,
-            "mar" => 3,
-            "apr" => 4,
-            "maj" => 5,
-            "jun" => 6,
-            "jul" => 7,
-            "aug" => 8,
-            "sep" => 9,
-            "okt" => 10,
-            "nov" => 11,
-            "dec" => 12,
-            _ => unreachable!(),
-        };
-
-        let now = Local::now();
-
-        // `ymd` does not like zero-indexed months.
-        let intermediate = Local.ymd(now.year(), month, day).and_hms(0, 0, 0);
-
-        if intermediate < now {
-            return intermediate.with_year(now.year() + 1).unwrap();
+        match (day, month) {
+            (Some(day), Some(month)) => Some(
+                chrono_tz::Europe::Stockholm
+                    .ymd(Local::now().year(), month, day)
+                    .and_hms(0, 0, 0)
+                    .with_timezone(&Utc),
+            ),
+            _ => None,
         }
-
-        intermediate
     }
 
     pub fn from_element(element: scraper::ElementRef) -> Option<Self> {
@@ -98,14 +97,12 @@ impl Menu {
             .filter_map(Dish::from_element)
             .collect();
 
-        if dishes.is_empty() {
-            return None;
-        }
+        let date = Self::extract_date(&element);
 
-        Some(Self {
-            dishes,
-            date: Self::extract_date(&element),
-        })
+        match (date, dishes.is_empty()) {
+            (Some(date), false) => Some(Self { dishes, date }),
+            _ => None,
+        }
     }
 
     pub async fn scrape(url: String) -> APIResult<Vec<Menu>> {
