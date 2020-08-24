@@ -1,6 +1,6 @@
 [package]
 name = "mashed-potato"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Åke Amcoff <ake.amcoff@gmail.com>"]
 edition = "2018"
 
@@ -16,3 +16,4 @@ chrono-tz = { version = "0.5", features = ["serde"] }
 actix-web = "2.0"
 actix-rt = "1"
 futures = "0.3"
+itertools = "0.9"

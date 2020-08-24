@@ -2,6 +2,7 @@ use super::APIResult;
 use chrono::prelude::*;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
+use itertools::Itertools;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Dish {
@@ -115,6 +116,7 @@ impl Menu {
         let menus = document
             .select(&selector)
             .filter_map(Menu::from_element)
+            .dedup_by(|a, b| a.date == b.date)
             .collect();
 
         Ok(menus)
