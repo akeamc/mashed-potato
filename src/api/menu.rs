@@ -1,8 +1,8 @@
 use super::APIResult;
 use chrono::prelude::*;
+use itertools::Itertools;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
-use itertools::Itertools;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Dish {
@@ -113,12 +113,18 @@ impl Menu {
         let document = Html::parse_document(&html);
         let selector = Selector::parse("#app-page .panel").unwrap();
 
-        let menus = document
+        let mut menus: Vec<Menu> = document
             .select(&selector)
             .filter_map(Menu::from_element)
+            .collect();
+
+        menus.sort_by(|a, b| a.date.cmp(&b.date));
+
+        let without_duplicates: Vec<Menu> = menus
+            .into_iter()
             .dedup_by(|a, b| a.date == b.date)
             .collect();
 
-        Ok(menus)
+        Ok(without_duplicates)
     }
 }
