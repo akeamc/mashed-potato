@@ -7,7 +7,7 @@ COPY --chown=rust:rust src ./src
 RUN cargo build --release
 
 FROM alpine:latest
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates libressl-dev
 COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/mashed-potato /usr/local/bin/
 
 ENV ADDR 0.0.0.0:80
