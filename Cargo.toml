@@ -1,6 +1,6 @@
 [package]
 name = "mashed-potato"
-version = "0.2.3"
+version = "0.2.4"
 authors = ["Åke Amcoff <ake.amcoff@gmail.com>"]
 edition = "2018"
 

@@ -14,6 +14,10 @@ async fn index() -> Result<Json<Vec<api::Menu>>> {
     Ok(Json(menus))
 }
 
+async fn health() -> Result<String> {
+    Ok("health ok".to_string())
+}
+
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     use actix_web::{App, HttpServer};
@@ -26,8 +30,12 @@ async fn main() -> std::io::Result<()> {
 
     println!("Binding {}", addr);
 
-    HttpServer::new(|| App::new().route("/", web::get().to(index)))
-        .bind(addr)?
-        .run()
-        .await
+    HttpServer::new(|| {
+        App::new()
+            .route("/", web::get().to(index))
+            .route("/health", web::get().to(health))
+    })
+    .bind(addr)?
+    .run()
+    .await
 }
