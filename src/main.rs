@@ -24,6 +24,9 @@ async fn main() -> std::io::Result<()> {
     use std::env;
     use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
+    println!("Probing OpenSSL certificate directories");
+    openssl_probe::init_ssl_cert_env_vars();
+
     let addr = env::var("ADDR")
         .map(|addr_str| addr_str.parse::<SocketAddr>().unwrap())
         .unwrap_or_else(|_| SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 8080));
