@@ -9,11 +9,6 @@ RUN cargo build --release
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 
-# SSL related annoying things
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-ENV SSL_CERT_DIR=/etc/ssl/certs
-
 COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/mashed-potato /usr/local/bin/
 
 ENV ADDR 0.0.0.0:80
