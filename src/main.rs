@@ -44,6 +44,17 @@ async fn dish(path: web::Path<DishRequestParams>) -> APIResult<Json<api::Dish>> 
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct StudySetRequestParams {
+    id: String,
+}
+
+async fn study_set(path: web::Path<StudySetRequestParams>) -> APIResult<Json<api::StudySet>> {
+    let study_set = api::StudySet::scrape(path.id.clone()).await?;
+
+    Ok(Json(study_set))
+}
+
 async fn health() -> Result<String> {
     Ok("health ok".to_string())
 }
@@ -65,6 +76,7 @@ async fn main() -> std::io::Result<()> {
             .route("/menu", web::get().to(menu))
             .route("/dishes", web::get().to(dishes))
             .route("/dishes/{id}", web::get().to(dish))
+            .route("/quizlet/{id}", web::get().to(study_set))
             .route("/health", web::get().to(health))
     })
     .bind(addr)?
