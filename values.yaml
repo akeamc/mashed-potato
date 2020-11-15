@@ -36,7 +36,7 @@ ingress:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.tls.certresolver: le-http
+    traefik.ingress.kubernetes.io/router.tls.certresolver: le
   hosts:
     - host: potato.xn--sdermalmsskolan-8sb.com
       paths: ["/"]
