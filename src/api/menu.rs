@@ -38,12 +38,19 @@ impl Menu {
             _ => None,
         })?;
 
-        Some(
-            chrono_tz::Europe::Stockholm
-                .ymd(Local::now().year(), month, day)
-                .and_hms(0, 0, 0)
-                .with_timezone(&Utc),
-        )
+        let now = Local::now();
+
+        let date = chrono_tz::Europe::Stockholm
+            .ymd(now.year(), month, day)
+            .and_hms(0, 0, 0)
+            .with_timezone(&Utc);
+
+        // This stupid "API" doesn't tell the year. We must guess.
+        if date < now {
+            return date.with_year(now.year() + 1);
+        }
+
+        Some(date)
     }
 
     pub fn from_element(element: scraper::ElementRef) -> Option<Self> {
