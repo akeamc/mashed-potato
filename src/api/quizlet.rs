@@ -9,11 +9,11 @@ pub struct StudySet {
     pub title: String,
     pub description: String,
     pub term_count: u32,
-    pub author: String
+    pub author: String,
 }
 
 impl StudySet {
-    pub fn get_url(id: &String) -> String {
+    pub fn get_url(id: &str) -> String {
         format!("https://quizlet.com/{}/bruh", id)
     }
 
@@ -38,20 +38,24 @@ impl StudySet {
     fn extract_term_count(document: &Html) -> Option<u32> {
         let selector = Selector::parse(".UIHeading.UIHeading--four").unwrap();
 
-        document.select(&selector).next().map(|element| {
-            let text = element.inner_html();
+        document
+            .select(&selector)
+            .next()
+            .map(|element| {
+                let text = element.inner_html();
 
-            text.chars()
-                .skip_while(|ch| !ch.is_digit(10))
-                .take_while(|ch| ch.is_digit(10))
-                .fold(None, |acc, ch| {
-                    ch.to_digit(10).map(|b| acc.unwrap_or(0) * 10 + b)
-                })
-        }).flatten()
+                text.chars()
+                    .skip_while(|ch| !ch.is_digit(10))
+                    .take_while(|ch| ch.is_digit(10))
+                    .fold(None, |acc, ch| {
+                        ch.to_digit(10).map(|b| acc.unwrap_or(0) * 10 + b)
+                    })
+            })
+            .flatten()
     }
 
     fn extract_author(document: &Html) -> Option<String> {
-      let selector = Selector::parse(".UserLink-username").unwrap();
+        let selector = Selector::parse(".UserLink-username").unwrap();
 
         document
             .select(&selector)
@@ -70,7 +74,7 @@ impl StudySet {
             title,
             description,
             term_count,
-            author
+            author,
         })
     }
 
@@ -86,6 +90,7 @@ impl StudySet {
 
         let document = Html::parse_document(&html);
 
-        Self::extract(&document, id).ok_or(APIError::NotFound("Study set not found".to_string()))
+        Self::extract(&document, id)
+            .ok_or_else(|| APIError::NotFound("Study set not found".to_string()))
     }
 }
