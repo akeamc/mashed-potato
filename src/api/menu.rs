@@ -1,6 +1,6 @@
 use super::APIResult;
 use super::Dish;
-use chrono::prelude::*;
+use chrono::{prelude::*, Duration};
 use itertools::Itertools;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
@@ -45,8 +45,13 @@ impl Menu {
             .and_hms(0, 0, 0)
             .with_timezone(&Utc);
 
-        // This stupid "API" doesn't tell the year. We must guess.
-        if date < now {
+        // The backend only tells the day and month (not year).
+        // Since it displays the menus of the past week, even
+        // expired menus are shown and you can't simply set the
+        // year to the next if the menu is "expired".
+        // Therefore, you must check if it "has been" more
+        // than 7 days since the menu "expired".
+        if date < now - Duration::days(7) {
             return date.with_year(now.year() + 1);
         }
 
